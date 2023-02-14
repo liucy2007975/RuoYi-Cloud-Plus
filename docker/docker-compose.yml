@@ -2,7 +2,7 @@ version: '3'
 
 services:
   mysql:
-    image: mysql:8.0.29
+    image: mysql:8.0.31
     container_name: mysql
     environment:
       # 时区上海
@@ -29,7 +29,7 @@ services:
     network_mode: "host"
 
   nacos:
-    image: nacos/nacos-server:v2.1.0
+    image: ruoyi/ruoyi-nacos:1.5.0
     container_name: nacos
     ports:
       - "8848:8848"
@@ -37,18 +37,12 @@ services:
       - "9849:9849"
     environment:
       TZ: Asia/Shanghai
-      MODE: standalone
-      SPRING_DATASOURCE_PLATFORM: mysql
-      MYSQL_SERVICE_HOST: 127.0.0.1
-      MYSQL_SERVICE_PORT: 3306
-      MYSQL_SERVICE_USER: root
-      MYSQL_SERVICE_PASSWORD: ruoyi123
-      MYSQL_SERVICE_DB_NAME: ry-config
-      MYSQL_SERVICE_DB_PARAM: characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC
+      JAVA_OPTS: "-Xms256m -Xmx512m"
     volumes:
-      - /docker/nacos/logs/:/home/nacos/logs
-      - /docker/nacos/config/custom.properties:/home/nacos/init.d/custom.properties
-    privileged: true
+      # 日志目录 注意集群模式下 日志目录不能一致 需要区分例如 nacos1 nacos2
+      - /docker/nacos/logs/:/root/nacos/logs
+      # 集群配置文件 集群所有nacos都必须使用此文件
+      - /docker/nacos/conf/cluster.conf:/root/nacos/conf/cluster.conf
     network_mode: "host"
 
   redis:
@@ -80,11 +74,12 @@ services:
       # 时区上海
       TZ: Asia/Shanghai
       # 管理后台用户名
-      MINIO_ACCESS_KEY: ruoyi
+      MINIO_ROOT_USER: ruoyi
       # 管理后台密码，最小8个字符
-      MINIO_SECRET_KEY: ruoyi123
+      MINIO_ROOT_PASSWORD: ruoyi123
       # https需要指定域名
-      MINIO_SERVER_URL: ""
+      #MINIO_SERVER_URL: "https://xxx.com:9000"
+      #MINIO_BROWSER_REDIRECT_URL: "https://xxx.com:9001"
       # 开启压缩 on 开启 off 关闭
       MINIO_COMPRESS: "off"
       # 扩展名 .pdf,.doc 为空 所有类型均压缩
@@ -101,7 +96,7 @@ services:
     network_mode: "host"
 
   seata-server:
-    image: ruoyi/ruoyi-seata-server:1.2.0
+    image: ruoyi/ruoyi-seata-server:1.5.0
     container_name: seata-server
     ports:
       - "7091:7091"
@@ -113,11 +108,13 @@ services:
       SEATA_PORT: 8091
     volumes:
       - /docker/ruoyi-seata-server/logs/:/ruoyi/seata-server/logs
+      # skywalking 探针
+      - /docker/skywalking/agent/:/ruoyi/skywalking/agent
     privileged: true
     network_mode: "host"
 
   nginx-web:
-    image: nginx:1.21.6
+    image: nginx:1.22.1
     container_name: nginx-web
     environment:
       # 时区上海
@@ -138,7 +135,7 @@ services:
     network_mode: "host"
 
   sentinel:
-    image: ruoyi/ruoyi-sentinel-dashboard:1.2.0
+    image: ruoyi/ruoyi-sentinel-dashboard:1.5.0
     container_name: sentinel
     environment:
       TZ: Asia/Shanghai
@@ -147,11 +144,13 @@ services:
     volumes:
       # 配置文件
       - /docker/ruoyi-sentinel-dashboard/logs/:/ruoyi/sentinel-dashboard/logs
+      # skywalking 探针
+      - /docker/skywalking/agent/:/ruoyi/skywalking/agent
     restart: always
     network_mode: "host"
 
-  ruoyi-monitor-admin:
-    image: ruoyi/ruoyi-monitor:1.2.0
+  ruoyi-monitor:
+    image: ruoyi/ruoyi-monitor:1.5.0
     container_name: ruoyi-monitor
     environment:
       # 时区上海
@@ -161,11 +160,13 @@ services:
     volumes:
       # 配置文件
       - /docker/ruoyi-monitor/logs/:/ruoyi/monitor/logs
+      # skywalking 探针
+      - /docker/skywalking/agent/:/ruoyi/skywalking/agent
     privileged: true
     network_mode: "host"
 
   ruoyi-xxl-job-admin:
-    image: ruoyi/ruoyi-xxl-job-admin:1.2.0
+    image: ruoyi/ruoyi-xxl-job-admin:1.5.0
     container_name: ruoyi-xxl-job-admin
     environment:
       # 时区上海
@@ -175,11 +176,13 @@ services:
     volumes:
       # 配置文件
       - /docker/ruoyi-xxl-job-admin/logs/:/ruoyi/xxl-job-admin/logs
+      # skywalking 探针
+      - /docker/skywalking/agent/:/ruoyi/skywalking/agent
     privileged: true
     network_mode: "host"
 
   ruoyi-gateway:
-    image: ruoyi/ruoyi-gateway:1.2.0
+    image: ruoyi/ruoyi-gateway:1.5.0
     container_name: ruoyi-gateway
     environment:
       # 时区上海
@@ -189,25 +192,29 @@ services:
     volumes:
       # 配置文件
       - /docker/ruoyi-gateway/logs/:/ruoyi/gateway/logs
+      # skywalking 探针
+      - /docker/skywalking/agent/:/ruoyi/skywalking/agent
     privileged: true
     network_mode: "host"
 
   ruoyi-auth:
-    image: ruoyi/ruoyi-auth:1.2.0
+    image: ruoyi/ruoyi-auth:1.5.0
     container_name: ruoyi-auth
     environment:
       # 时区上海
       TZ: Asia/Shanghai
     ports:
-      - "9200:9200"
+      - "9210:9210"
     volumes:
       # 配置文件
       - /docker/ruoyi-auth/logs/:/ruoyi/auth/logs
+      # skywalking 探针
+      - /docker/skywalking/agent/:/ruoyi/skywalking/agent
     privileged: true
     network_mode: "host"
 
   ruoyi-system:
-    image: ruoyi/ruoyi-system:1.2.0
+    image: ruoyi/ruoyi-system:1.5.0
     container_name: ruoyi-system
     environment:
       # 时区上海
@@ -217,11 +224,13 @@ services:
     volumes:
       # 配置文件
       - /docker/ruoyi-system/logs/:/ruoyi/system/logs
+      # skywalking 探针
+      - /docker/skywalking/agent/:/ruoyi/skywalking/agent
     privileged: true
     network_mode: "host"
 
   ruoyi-gen:
-    image: ruoyi/ruoyi-gen:1.2.0
+    image: ruoyi/ruoyi-gen:1.5.0
     container_name: ruoyi-gen
     environment:
       # 时区上海
@@ -231,11 +240,13 @@ services:
     volumes:
       # 配置文件
       - /docker/ruoyi-gen/logs/:/ruoyi/gen/logs
+      # skywalking 探针
+      - /docker/skywalking/agent/:/ruoyi/skywalking/agent
     privileged: true
     network_mode: "host"
 
   ruoyi-job:
-    image: ruoyi/ruoyi-job:1.2.0
+    image: ruoyi/ruoyi-job:1.5.0
     container_name: ruoyi-job
     environment:
       # 时区上海
@@ -245,20 +256,24 @@ services:
     volumes:
       # 配置文件
       - /docker/ruoyi-job/logs/:/ruoyi/job/logs
+      # skywalking 探针
+      - /docker/skywalking/agent/:/ruoyi/skywalking/agent
     privileged: true
     network_mode: "host"
 
   ruoyi-resource:
-    image: ruoyi/ruoyi-resource:1.2.0
+    image: ruoyi/ruoyi-resource:1.5.0
     container_name: ruoyi-resource
     environment:
       # 时区上海
       TZ: Asia/Shanghai
     ports:
-      - "9300:9300"
+      - "9204:9204"
     volumes:
       # 配置文件
       - /docker/ruoyi-resource/logs/:/ruoyi/resource/logs
+      # skywalking 探针
+      - /docker/skywalking/agent/:/ruoyi/skywalking/agent
     privileged: true
     network_mode: "host"
 
@@ -268,7 +283,7 @@ services:
 #################################################################################################
 
   elasticsearch:
-    image: elasticsearch:7.17.2
+    image: elasticsearch:7.17.6
     container_name: elasticsearch
     ports:
       - "9200:9200"
@@ -286,7 +301,7 @@ services:
     network_mode: "host"
 
   kibana:
-    image: kibana:7.17.2
+    image: kibana:7.17.6
     container_name: kibana
     ports:
       - "5601:5601"
@@ -303,7 +318,7 @@ services:
     network_mode: "host"
 
   logstash:
-    image: logstash:7.17.2
+    image: logstash:7.17.6
     container_name: logstash
     ports:
       - "4560:4560"
@@ -417,4 +432,59 @@ services:
       KM_ARGS: -Dhttp.port=19092
     depends_on:
       - kafka
+    network_mode: "host"
+
+  sky-oap:
+    image: apache/skywalking-oap-server:8.9.1
+    container_name: sky-oap
+    ports:
+      - "11800:11800"
+      - "12800:12800"
+    environment:
+      JAVA_OPTS: -Xms512m -Xmx1g
+      #记录数据的有效期，单位天
+      SW_CORE_RECORD_DATA_TTL: 7
+      #分析指标数据的有效期，单位天
+      SW_CORE_METRICS_DATA_TTL: 7
+      SW_STORAGE: elasticsearch
+      SW_STORAGE_ES_CLUSTER_NODES: 127.0.0.1:9200
+      TZ: Asia/Shanghai
+    network_mode: "host"
+
+  sky-ui:
+    image: apache/skywalking-ui:8.9.1
+    container_name: sky-ui
+    ports:
+      - "18080:18080"
+    environment:
+      SW_OAP_ADDRESS: http://127.0.0.1:12800
+      TZ: Asia/Shanghai
+      JAVA_OPTS: "-Dserver.port=18080"
+    depends_on:
+      - sky-oap
+    network_mode: "host"
+
+  prometheus:
+    image: prom/prometheus:v2.40.1
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - /docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    network_mode: "host"
+
+  grafana:
+    image: grafana/grafana:9.2.4
+    container_name: grafana
+    environment:
+      TZ: Asia/Shanghai
+      # 服务地址 用于指定外网ip或域名
+      GF_SERVER_ROOT_URL: ""
+      # admin 管理员密码
+      GF_SECURITY_ADMIN_PASSWORD: 123456
+    ports:
+      - "3000:3000"
+    volumes:
+      - /docker/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - /docker/grafana:/var/lib/grafana
     network_mode: "host"

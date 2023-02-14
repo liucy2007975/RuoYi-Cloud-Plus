@@ -46,7 +46,7 @@
           * Excel框架 Alibaba EasyExcel 性能优异 扩展性强<br/>
           * 文档框架 SpringDoc、javadoc 无注解零入侵基于java注释<br/>
           * 工具类框架 Hutool、Lombok 减少代码冗余 增加安全性<br/>
-          * 代码生成器 适配MP、Knife4j规范化代码 一键生成前后端代码<br/>
+          * 代码生成器 适配MP、SpringDoc规范化代码 一键生成前后端代码<br/>
           * 部署方式 Docker 容器编排 一键部署业务集群<br/>
           * 国际化 SpringMessage Spring标准国际化方案<br/>
         </p>
@@ -135,15 +135,6 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :xs="24" :sm="24" :md="12" :lg="8">
-        <el-card class="update-log">
-          <div slot="header" class="clearfix">
-            <span>更新日志</span>
-          </div>
-          <el-collapse accordion>
-          </el-collapse>
-        </el-card>
-      </el-col>
     </el-row>
   </div>
 </template>
@@ -154,7 +145,7 @@ export default {
   data() {
     return {
       // 版本号
-      version: "1.2.0",
+      version: "1.5.0",
     };
   },
   methods: {

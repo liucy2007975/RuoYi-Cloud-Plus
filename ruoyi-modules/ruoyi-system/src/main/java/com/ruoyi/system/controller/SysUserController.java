@@ -3,6 +3,7 @@ package com.ruoyi.system.controller;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.secure.BCrypt;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.common.core.constant.UserConstants;
 import com.ruoyi.common.core.domain.R;
@@ -19,13 +20,11 @@ import com.ruoyi.common.satoken.utils.LoginHelper;
 import com.ruoyi.system.api.domain.SysDept;
 import com.ruoyi.system.api.domain.SysRole;
 import com.ruoyi.system.api.domain.SysUser;
+import com.ruoyi.system.api.model.LoginUser;
 import com.ruoyi.system.domain.vo.SysUserExportVo;
 import com.ruoyi.system.domain.vo.SysUserImportVo;
 import com.ruoyi.system.listener.SysUserImportListener;
-import com.ruoyi.system.service.ISysPermissionService;
-import com.ruoyi.system.service.ISysPostService;
-import com.ruoyi.system.service.ISysRoleService;
-import com.ruoyi.system.service.ISysUserService;
+import com.ruoyi.system.service.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.MediaType;
@@ -52,6 +51,7 @@ public class SysUserController extends BaseController {
     private final ISysRoleService roleService;
     private final ISysPostService postService;
     private final ISysPermissionService permissionService;
+    private final ISysDeptService deptService;
 
     /**
      * 获取用户列表
@@ -111,15 +111,12 @@ public class SysUserController extends BaseController {
      */
     @GetMapping("getInfo")
     public R<Map<String, Object>> getInfo() {
-        Long userId = LoginHelper.getUserId();
-        // 角色集合
-        Set<String> roles = permissionService.getRolePermission(userId);
-        // 权限集合
-        Set<String> permissions = permissionService.getMenuPermission(userId);
+        LoginUser loginUser = LoginHelper.getLoginUser();
+        SysUser user = userService.selectUserById(loginUser.getUserId());
         Map<String, Object> ajax = new HashMap<>();
-        ajax.put("user", userService.selectUserById(userId));
-        ajax.put("roles", roles);
-        ajax.put("permissions", permissions);
+        ajax.put("user", user);
+        ajax.put("roles", loginUser.getRolePermission());
+        ajax.put("permissions", loginUser.getMenuPermission());
         return R.ok(ajax);
     }
 
@@ -152,7 +149,7 @@ public class SysUserController extends BaseController {
     @Log(title = "用户管理", businessType = BusinessType.INSERT)
     @PostMapping
     public R<Void> add(@Validated @RequestBody SysUser user) {
-        if (UserConstants.NOT_UNIQUE.equals(userService.checkUserNameUnique(user.getUserName()))) {
+        if (UserConstants.NOT_UNIQUE.equals(userService.checkUserNameUnique(user))) {
             return R.fail("新增用户'" + user.getUserName() + "'失败，登录账号已存在");
         } else if (StringUtils.isNotEmpty(user.getPhonenumber())
             && UserConstants.NOT_UNIQUE.equals(userService.checkPhoneUnique(user))) {
@@ -174,7 +171,9 @@ public class SysUserController extends BaseController {
     public R<Void> edit(@Validated @RequestBody SysUser user) {
         userService.checkUserAllowed(user);
         userService.checkUserDataScope(user.getUserId());
-        if (StringUtils.isNotEmpty(user.getPhonenumber())
+        if (UserConstants.NOT_UNIQUE.equals(userService.checkUserNameUnique(user))) {
+            return R.fail("修改用户'" + user.getUserName() + "'失败，登录账号已存在");
+        } else if (StringUtils.isNotEmpty(user.getPhonenumber())
             && UserConstants.NOT_UNIQUE.equals(userService.checkPhoneUnique(user))) {
             return R.fail("修改用户'" + user.getUserName() + "'失败，手机号码已存在");
         } else if (StringUtils.isNotEmpty(user.getEmail())
@@ -253,5 +252,14 @@ public class SysUserController extends BaseController {
         userService.checkUserDataScope(userId);
         userService.insertUserAuth(userId, roleIds);
         return R.ok();
+    }
+
+    /**
+     * 获取部门树列表
+     */
+    @SaCheckPermission("system:user:list")
+    @GetMapping("/deptTree")
+    public R<List<Tree<Long>>> deptTree(SysDept dept) {
+        return R.ok(deptService.selectDeptTreeList(dept));
     }
 }

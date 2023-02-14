@@ -6,7 +6,7 @@
 
     <groupId>com.ruoyi</groupId>
     <artifactId>ruoyi-common-alibaba-bom</artifactId>
-    <version>1.2.0</version>
+    <version>1.5.0</version>
     <packaging>pom</packaging>
 
     <description>
@@ -14,16 +14,11 @@
     </description>
 
     <properties>
-        <spring-cloud-alibaba.version>2021.0.1.0</spring-cloud-alibaba.version>
-        <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
-        <sentinel.version>1.8.4</sentinel.version>
-        <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-        <nacos.config.version>0.8.0</nacos.config.version>
-        <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
-        <flatten-maven-plugin.version>1.1.0</flatten-maven-plugin.version>
-        <nacos.client.version>2.0.2</nacos.client.version>
-        <seata.version>1.5.2</seata.version>
-        <dubbo.version>3.0.10</dubbo.version>
+        <spring-cloud-alibaba.version>2021.0.4.0</spring-cloud-alibaba.version>
+        <sentinel.version>1.8.6</sentinel.version>
+        <seata.version>1.6.1</seata.version>
+        <nacos.client.version>2.2.0</nacos.client.version>
+        <dubbo.version>3.1.4</dubbo.version>
         <spring.context.support.version>1.0.11</spring.context.support.version>
     </properties>
     <dependencyManagement>
@@ -39,11 +34,6 @@
                 <groupId>com.alibaba.nacos</groupId>
                 <artifactId>nacos-client</artifactId>
                 <version>${nacos.client.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.alibaba.nacos</groupId>
-                <artifactId>nacos-config</artifactId>
-                <version>${nacos.config.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alibaba.csp</groupId>
@@ -107,16 +97,6 @@
             </dependency>
             <dependency>
                 <groupId>com.alibaba.csp</groupId>
-                <artifactId>sentinel-dubbo-adapter</artifactId>
-                <version>${sentinel.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.alibaba.csp</groupId>
-                <artifactId>sentinel-apache-dubbo-adapter</artifactId>
-                <version>${sentinel.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.alibaba.csp</groupId>
                 <artifactId>sentinel-reactor-adapter</artifactId>
                 <version>${sentinel.version}</version>
             </dependency>
@@ -143,6 +123,21 @@
             <dependency>
                 <groupId>com.alibaba.csp</groupId>
                 <artifactId>sentinel-spring-webmvc-adapter</artifactId>
+                <version>${sentinel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.csp</groupId>
+                <artifactId>sentinel-dubbo-adapter</artifactId>
+                <version>${sentinel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.csp</groupId>
+                <artifactId>sentinel-apache-dubbo-adapter</artifactId>
+                <version>${sentinel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.csp</groupId>
+                <artifactId>sentinel-apache-dubbo3-adapter</artifactId>
                 <version>${sentinel.version}</version>
             </dependency>
             <dependency>

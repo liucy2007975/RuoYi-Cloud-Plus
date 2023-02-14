@@ -15,6 +15,7 @@ import com.ruoyi.common.core.utils.StreamUtils;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.mybatis.core.page.PageQuery;
 import com.ruoyi.common.mybatis.core.page.TableDataInfo;
+import com.ruoyi.common.mybatis.helper.DataBaseHelper;
 import com.ruoyi.common.satoken.utils.LoginHelper;
 import com.ruoyi.system.api.domain.SysDept;
 import com.ruoyi.system.api.domain.SysRole;
@@ -82,7 +83,7 @@ public class SysUserServiceImpl implements ISysUserService {
             .and(ObjectUtil.isNotNull(user.getDeptId()), w -> {
                 List<SysDept> deptList = deptMapper.selectList(new LambdaQueryWrapper<SysDept>()
                     .select(SysDept::getDeptId)
-                    .apply("find_in_set({0},ancestors) <> 0", user.getDeptId()));
+                    .apply(DataBaseHelper.findInSet(user.getDeptId(), "ancestors")));
                 List<Long> ids = StreamUtils.toList(deptList, SysDept::getDeptId);
                 ids.add(user.getDeptId());
                 w.in("u.dept_id", ids);
@@ -193,12 +194,14 @@ public class SysUserServiceImpl implements ISysUserService {
     /**
      * 校验用户名称是否唯一
      *
-     * @param userName 用户名称
+     * @param user 用户信息
      * @return 结果
      */
     @Override
-    public String checkUserNameUnique(String userName) {
-        boolean exist = baseMapper.exists(new LambdaQueryWrapper<SysUser>().eq(SysUser::getUserName, userName));
+    public String checkUserNameUnique(SysUser user) {
+        boolean exist = baseMapper.exists(new LambdaQueryWrapper<SysUser>()
+            .eq(SysUser::getUserName, user.getUserName())
+            .ne(ObjectUtil.isNotNull(user.getUserId()), SysUser::getUserId, user.getUserId()));
         if (exist) {
             return UserConstants.NOT_UNIQUE;
         }

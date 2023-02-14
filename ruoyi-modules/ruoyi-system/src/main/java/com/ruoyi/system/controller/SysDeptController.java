@@ -1,7 +1,6 @@
 package com.ruoyi.system.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.ArrayUtil;
 import com.ruoyi.common.core.constant.UserConstants;
 import com.ruoyi.common.core.domain.R;
@@ -15,9 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 部门信息
@@ -51,8 +48,7 @@ public class SysDeptController extends BaseController {
     @GetMapping("/list/exclude/{deptId}")
     public R<List<SysDept>> excludeChild(@PathVariable(value = "deptId", required = false) Long deptId) {
         List<SysDept> depts = deptService.selectDeptList(new SysDept());
-        depts.removeIf(d -> d.getDeptId().equals(deptId)
-            || ArrayUtil.contains(StringUtils.split(d.getAncestors(), ","), deptId + ""));
+        depts.removeIf(d -> d.getDeptId().intValue() == deptId || ArrayUtil.contains(StringUtils.split(d.getAncestors(), ","), deptId + ""));
         return R.ok(depts);
     }
 
@@ -66,29 +62,6 @@ public class SysDeptController extends BaseController {
     public R<SysDept> getInfo(@PathVariable Long deptId) {
         deptService.checkDeptDataScope(deptId);
         return R.ok(deptService.selectDeptById(deptId));
-    }
-
-    /**
-     * 获取部门下拉树列表
-     */
-    @GetMapping("/treeselect")
-    public R<List<Tree<Long>>> treeselect(SysDept dept) {
-        List<SysDept> depts = deptService.selectDeptList(dept);
-        return R.ok(deptService.buildDeptTreeSelect(depts));
-    }
-
-    /**
-     * 加载对应角色部门列表树
-     *
-     * @param roleId 角色ID
-     */
-    @GetMapping(value = "/roleDeptTreeselect/{roleId}")
-    public R<Map<String, Object>> roleDeptTreeselect(@PathVariable("roleId") Long roleId) {
-        List<SysDept> depts = deptService.selectDeptList(new SysDept());
-        Map<String, Object> ajax = new HashMap<>();
-        ajax.put("checkedKeys", deptService.selectDeptListByRoleId(roleId));
-        ajax.put("depts", deptService.buildDeptTreeSelect(depts));
-        return R.ok(ajax);
     }
 
     /**
@@ -132,10 +105,10 @@ public class SysDeptController extends BaseController {
     @DeleteMapping("/{deptId}")
     public R<Void> remove(@PathVariable Long deptId) {
         if (deptService.hasChildByDeptId(deptId)) {
-            return R.fail("存在下级部门,不允许删除");
+            return R.warn("存在下级部门,不允许删除");
         }
         if (deptService.checkDeptExistUser(deptId)) {
-            return R.fail("部门存在用户,不允许删除");
+            return R.warn("部门存在用户,不允许删除");
         }
         deptService.checkDeptDataScope(deptId);
         return toAjax(deptService.deleteDeptById(deptId));

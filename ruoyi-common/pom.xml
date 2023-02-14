@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.ruoyi</groupId>
         <artifactId>ruoyi-cloud-plus</artifactId>
-        <version>1.2.0</version>
+        <version>1.5.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,6 +31,9 @@
         <module>ruoyi-common-sms</module>
         <module>ruoyi-common-logstash</module>
         <module>ruoyi-common-elasticsearch</module>
+        <module>ruoyi-common-sentinel</module>
+        <module>ruoyi-common-skylog</module>
+        <module>ruoyi-common-prometheus</module>
     </modules>
 
     <artifactId>ruoyi-common</artifactId>

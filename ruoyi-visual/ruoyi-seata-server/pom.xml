@@ -20,15 +20,16 @@
     <parent>
         <groupId>com.ruoyi</groupId>
         <artifactId>ruoyi-visual</artifactId>
-        <version>1.2.0</version>
+        <version>1.5.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ruoyi-seata-server</artifactId>
     <packaging>jar</packaging>
 
     <properties>
-        <seata.version>1.5.2</seata.version>
+        <seata.version>1.6.1</seata.version>
         <jcommander.version>1.72</jcommander.version>
+        <druid.version>1.2.12</druid.version>
     </properties>
 
     <dependencyManagement>
@@ -36,6 +37,13 @@
             <dependency>
                 <groupId>io.seata</groupId>
                 <artifactId>seata-bom</artifactId>
+                <version>${seata.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.seata</groupId>
+                <artifactId>seata-dependencies</artifactId>
                 <version>${seata.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -48,6 +56,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j-to-slf4j</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.seata</groupId>
@@ -62,6 +76,12 @@
         <dependency>
             <groupId>io.seata</groupId>
             <artifactId>seata-config-all</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j</artifactId>
+                    <groupId>log4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.seata</groupId>
@@ -106,8 +126,8 @@
             <artifactId>h2</artifactId>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -149,6 +169,10 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+        </dependency>
         <!-- logback appenders -->
         <dependency>
             <groupId>net.logstash.logback</groupId>
@@ -171,10 +195,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

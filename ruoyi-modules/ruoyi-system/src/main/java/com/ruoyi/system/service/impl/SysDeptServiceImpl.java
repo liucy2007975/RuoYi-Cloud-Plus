@@ -10,6 +10,7 @@ import com.ruoyi.common.core.constant.UserConstants;
 import com.ruoyi.common.core.exception.ServiceException;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.core.utils.TreeBuildUtils;
+import com.ruoyi.common.mybatis.helper.DataBaseHelper;
 import com.ruoyi.common.satoken.utils.LoginHelper;
 import com.ruoyi.system.api.domain.SysDept;
 import com.ruoyi.system.api.domain.SysRole;
@@ -58,6 +59,18 @@ public class SysDeptServiceImpl implements ISysDeptService {
     }
 
     /**
+     * 查询部门树结构信息
+     *
+     * @param dept 部门信息
+     * @return 部门树信息集合
+     */
+    @Override
+    public List<Tree<Long>> selectDeptTreeList(SysDept dept) {
+        List<SysDept> depts = this.selectDeptList(dept);
+        return buildDeptTreeSelect(depts);
+    }
+
+    /**
      * 构建前端所需要下拉树结构
      *
      * @param depts 部门列表
@@ -95,7 +108,11 @@ public class SysDeptServiceImpl implements ISysDeptService {
      */
     @Override
     public SysDept selectDeptById(Long deptId) {
-        return baseMapper.selectById(deptId);
+        SysDept dept = baseMapper.selectById(deptId);
+        SysDept parentDept = baseMapper.selectOne(new LambdaQueryWrapper<SysDept>()
+            .select(SysDept::getDeptName).eq(SysDept::getDeptId, dept.getParentId()));
+        dept.setParentName(ObjectUtil.isNotNull(parentDept) ? parentDept.getDeptName() : null);
+        return dept;
     }
 
     /**
@@ -108,7 +125,7 @@ public class SysDeptServiceImpl implements ISysDeptService {
     public long selectNormalChildrenDeptById(Long deptId) {
         return baseMapper.selectCount(new LambdaQueryWrapper<SysDept>()
             .eq(SysDept::getStatus, UserConstants.DEPT_NORMAL)
-            .apply("find_in_set({0}, ancestors) <> 0", deptId));
+            .apply(DataBaseHelper.findInSet(deptId, "ancestors")));
     }
 
     /**
@@ -234,7 +251,7 @@ public class SysDeptServiceImpl implements ISysDeptService {
      */
     public void updateDeptChildren(Long deptId, String newAncestors, String oldAncestors) {
         List<SysDept> children = baseMapper.selectList(new LambdaQueryWrapper<SysDept>()
-            .apply("find_in_set({0},ancestors) <> 0", deptId));
+            .apply(DataBaseHelper.findInSet(deptId, "ancestors")));
         List<SysDept> list = new ArrayList<>();
         for (SysDept child : children) {
             SysDept dept = new SysDept();

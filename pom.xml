@@ -6,58 +6,53 @@
 
     <groupId>com.ruoyi</groupId>
     <artifactId>ruoyi-cloud-plus</artifactId>
-    <version>1.2.0</version>
+    <version>1.5.0</version>
 
     <name>RuoYi-Cloud-Plus</name>
     <url>https://gitee.com/JavaLionLi/RuoYi-Cloud-Plus</url>
     <description>RuoYi-Cloud-Plus微服务系统</description>
 
     <properties>
-        <ruoyi.version>1.2.0</ruoyi.version>
+        <ruoyi.version>1.5.0</ruoyi.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <spring-boot.version>2.7.2</spring-boot.version>
-        <spring-cloud.version>2021.0.3</spring-cloud.version>
-        <spring-boot-admin.version>2.7.3</spring-boot-admin.version>
+        <spring-boot.version>2.7.7</spring-boot.version>
+        <spring-cloud.version>2021.0.5</spring-cloud.version>
+        <spring-boot-admin.version>2.7.10</spring-boot-admin.version>
         <spring-boot.mybatis>2.2.2</spring-boot.mybatis>
         <mybatis.version>3.5.10</mybatis.version>
-        <mybatis-plus.version>3.5.2</mybatis-plus.version>
+        <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
         <p6spy.version>3.9.1</p6spy.version>
-        <druid.version>1.2.11</druid.version>
-        <dynamic-ds.version>3.5.1</dynamic-ds.version>
+        <dynamic-ds.version>3.5.2</dynamic-ds.version>
         <velocity.version>2.3</velocity.version>
-        <fastjson.version>1.2.83</fastjson.version>
-        <swagger.core.version>2.2.0</swagger.core.version>
-        <springdoc.version>1.6.9</springdoc.version>
-        <poi.version>5.2.2</poi.version>
-        <easyexcel.version>3.1.1</easyexcel.version>
-        <hutool.version>5.8.5</hutool.version>
-        <redisson.version>3.17.5</redisson.version>
-        <lock4j.version>2.2.2</lock4j.version>
+        <swagger.core.version>2.2.7</swagger.core.version>
+        <springdoc.version>1.6.14</springdoc.version>
+        <poi.version>5.2.3</poi.version>
+        <easyexcel.version>3.1.5</easyexcel.version>
+        <hutool.version>5.8.11</hutool.version>
+        <redisson.version>3.19.1</redisson.version>
+        <lock4j.version>2.2.3</lock4j.version>
         <xxl-job.version>2.3.1</xxl-job.version>
-        <satoken.version>1.30.0</satoken.version>
+        <satoken.version>1.34.0</satoken.version>
         <lombok.version>1.18.24</lombok.version>
         <logstash.version>7.1.1</logstash.version>
-        <easy-es.version>0.9.80</easy-es.version>
+        <easy-es.version>1.1.1</easy-es.version>
         <elasticsearch.version>7.14.0</elasticsearch.version>
+        <skywalking-toolkit.version>8.13.0</skywalking-toolkit.version>
 
-        <!-- 统一 guava 版本 解决隐式漏洞问题 -->
-        <guava.version>31.1-jre</guava.version>
+        <!-- 临时修复 snakeyaml 漏洞 -->
+        <snakeyaml.version>1.33</snakeyaml.version>
+        <!-- 临时修复 fastjson 漏洞 -->
+        <fastjson.version>1.2.83</fastjson.version>
 
         <!-- OSS 配置 -->
-        <aws-java-sdk-s3.version>1.12.264</aws-java-sdk-s3.version>
+        <aws-java-sdk-s3.version>1.12.373</aws-java-sdk-s3.version>
         <okhttp.version>4.10.0</okhttp.version>
 
         <!-- SMS 配置 -->
-        <aliyun.sms.version>2.0.16</aliyun.sms.version>
-        <tencent.sms.version>3.1.555</tencent.sms.version>
-
-        <!-- docker 配置 -->
-        <docker.registry.url>localhost</docker.registry.url>
-        <docker.registry.host>http://${docker.registry.url}:2375</docker.registry.host>
-        <docker.namespace>ruoyi</docker.namespace>
-        <docker.plugin.version>1.2.2</docker.plugin.version>
+        <aliyun.sms.version>2.0.23</aliyun.sms.version>
+        <tencent.sms.version>3.1.660</tencent.sms.version>
     </properties>
 
     <profiles>
@@ -152,6 +147,12 @@
                 <version>${satoken.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>cn.dev33</groupId>
+                <artifactId>sa-token-spring-boot-starter</artifactId>
+                <version>${satoken.version}</version>
+            </dependency>
+
             <!-- Mybatis 依赖配置 -->
             <dependency>
                 <groupId>org.mybatis.spring.boot</groupId>
@@ -241,6 +242,17 @@
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson-spring-boot-starter</artifactId>
                 <version>${redisson.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.redisson</groupId>
+                        <artifactId>redisson-spring-data-30</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-data-27</artifactId>
+                <version>${redisson.version}</version>
             </dependency>
 
             <dependency>
@@ -279,6 +291,18 @@
                 <version>${elasticsearch.version}</version>
             </dependency>
 
+            <!-- skywalking 整合 logback -->
+            <dependency>
+                <groupId>org.apache.skywalking</groupId>
+                <artifactId>apm-toolkit-logback-1.x</artifactId>
+                <version>${skywalking-toolkit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.skywalking</groupId>
+                <artifactId>apm-toolkit-trace</artifactId>
+                <version>${skywalking-toolkit.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
@@ -299,18 +323,17 @@
 
             <dependency>
                 <groupId>com.tencentcloudapi</groupId>
-                <artifactId>tencentcloud-sdk-java</artifactId>
+                <artifactId>tencentcloud-sdk-java-sms</artifactId>
                 <version>${tencent.sms.version}</version>
             </dependency>
 
-            <!-- 统一 guava 版本 解决隐式漏洞问题 -->
+            <!-- 临时修复 snakeyaml 漏洞 -->
             <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
             </dependency>
 
-            <!-- 统一 fastjson 版本 解决alibaba组件序列化漏洞问题 -->
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
@@ -349,7 +372,7 @@
                         <path>
                             <groupId>com.github.therapi</groupId>
                             <artifactId>therapi-runtime-javadoc-scribe</artifactId>
-                            <version>0.13.0</version>
+                            <version>0.15.0</version>
                         </path>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -364,35 +387,28 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <!-- 单元测试使用 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+                <configuration>
+                    <argLine>-Dfile.encoding=UTF-8</argLine>
+                    <!-- 根据打包环境执行对应的@Tag测试方法 -->
+                    <groups>${profiles.active}</groups>
+                    <!-- 排除标签 -->
+                    <excludedGroups>exclude</excludedGroups>
+                </configuration>
+            </plugin>
         </plugins>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>com.spotify</groupId>
-                    <artifactId>docker-maven-plugin</artifactId>
-                    <version>${docker.plugin.version}</version>
-                    <configuration>
-                        <imageName>${docker.namespace}/${project.artifactId}:${project.version}</imageName>
-                        <dockerDirectory>${project.basedir}</dockerDirectory>
-                        <dockerHost>${docker.registry.host}</dockerHost>
-                        <registryUrl>${docker.registry.url}</registryUrl>
-                        <serverId>${docker.registry.url}</serverId>
-                        <resources>
-                            <resource>
-                                <targetPath>/</targetPath>
-                                <directory>${project.build.directory}</directory>
-                                <include>${project.build.finalName}.jar</include>
-                            </resource>
-                        </resources>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <!-- 关闭过滤 -->
                 <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/webapp/</directory>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
